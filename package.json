@@ -1,0 +1,16 @@
+{
+	"name": "easy-game",
+	"version": "1.0.0",
+	"main": "lib/index.js",
+	"license": "MIT",
+	"scripts": {
+		"dev": "vite serve --port 3008"
+	},
+	"devDependencies": {
+		"typescript": "^4.3.5",
+		"vite": "^2.5.0"
+	},
+	"dependencies": {
+		"pixi.js": "^6.1.0"
+	}
+}
