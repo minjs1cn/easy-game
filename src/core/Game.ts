@@ -1,3 +1,4 @@
+import { Scene } from '.';
 import { Ticker, EventEmitter } from '../adapter';
 import { SystemContainer, ComponentContainer } from './containers';
 import { System } from './System';
@@ -6,7 +7,7 @@ export class Game extends EventEmitter {
 	/**
 	 * 游戏时钟
 	 */
-	private ticker: Ticker;
+	public ticker: Ticker;
 
 	/**
 	 * 系统管理容器
@@ -17,6 +18,8 @@ export class Game extends EventEmitter {
 	 * 组件管理容器
 	 */
 	private componentContainer: ComponentContainer;
+
+	public scene = new Scene();
 
 	public constructor() {
 		super();
@@ -45,7 +48,6 @@ export class Game extends EventEmitter {
 		this.systemContainer.add(system);
 		// @ts-expect-error
 		system.install(this);
-		system.init && system.init();
 	}
 
 	/**

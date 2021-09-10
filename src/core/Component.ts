@@ -1,22 +1,36 @@
-import { Node } from '../node';
+import { Node } from './node';
 
 /**
  * 所有组件的抽象类
  */
 export abstract class Component {
 	/**
-	 * 组件名·
+	 * 自定义名称
 	 */
-	public abstract name: string;
+	public static componentName: string;
 
 	/**
-	 * 组件挂载的节点
+	 * 唯一名称
 	 */
-	public node: Node | null = null;
+	public get $name() {
+		// @ts-expect-error
+		if (this.constructor.componentName) return this.constructor.componentName;
+		// @ts-expect-error
+		this.constructor.componentName = this.constructor.name;
+		return this.constructor.name;
+	}
+
+	private _node: Node | null;
+	/**
+	 * 挂载的节点
+	 */
+	public get node() {
+		return this._node;
+	}
 
 	private _enabled = true;
 	/**
-	 * 组件状态
+	 * 状态
 	 */
 	public get enabled() {
 		return this._enabled;
@@ -38,56 +52,52 @@ export abstract class Component {
 
 	public constructor() {}
 
-	public load() {
+	/**
+	 * 加载的时候
+	 */
+	public onLoad() {}
+	private load() {
 		this.onLoad();
 	}
 
 	/**
-	 * 组件加载的时候
+	 * 激活
 	 */
-	public onLoad() {}
-
-	public enable() {
+	public onEnable() {}
+	private enable() {
 		this.onEnable();
 	}
 
 	/**
-	 * 组件激活
+	 * 禁止
 	 */
-	public onEnable() {}
-
-	public disable() {
+	public onDisable() {}
+	private disable() {
 		this.onDisable();
 	}
 
 	/**
-	 * 组件禁止
-	 */
-	public onDisable() {}
-
-	/**
-	 * 组件首次渲染的时候
+	 * 首次帧循环
 	 */
 	public start() {}
 
 	/**
-	 * 组件更新的时候
+	 * 帧循环
 	 * @param dt
 	 */
 	public update(dt: number) {}
 
 	/**
-	 * 所有组件更新之后
+	 * 所有帧循环后
 	 * @param dt
 	 */
 	public lateUpdate(dt: number) {}
 
-	public destroy() {
-		this.onDestroy();
-	}
-
 	/**
-	 * 组件销毁
+	 * 销毁
 	 */
 	public onDestroy() {}
+	private destroy() {
+		this.onDestroy();
+	}
 }

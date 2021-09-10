@@ -1,4 +1,5 @@
-import { Component, ComponentContainer } from '../component';
+import { Component } from './Component';
+import { NodeComponentContainer } from './containers';
 
 let _uid = 0;
 
@@ -6,7 +7,7 @@ let _uid = 0;
  * 节点
  */
 export class Node {
-	private _componentContainer: ComponentContainer;
+	private _componentContainer: NodeComponentContainer;
 
 	private _id: number;
 	/**
@@ -37,7 +38,7 @@ export class Node {
 
 	public constructor() {
 		this._id = ++_uid;
-		this._componentContainer = new ComponentContainer(this);
+		this._componentContainer = new NodeComponentContainer();
 	}
 
 	/**
@@ -136,8 +137,10 @@ export class Node {
 	 * @param child
 	 */
 	public removeChild(child: Node) {
-		let index = this._children.findIndex(item => (item = child));
+		let index = this._children.findIndex(item => item.id === child.id);
 		if (index > -1) {
+			// 移除之前，节点上的组件要先销毁
+			this._children[index]._componentContainer.destroy();
 			this._children.splice(index, 1);
 			child._parent = null;
 		}
