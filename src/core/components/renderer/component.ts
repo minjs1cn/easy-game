@@ -1,4 +1,4 @@
-import { Component } from '../../';
+import { Component } from '../../Component';
 import { Point } from '../../../math';
 
 export class Transform extends Component {
@@ -48,5 +48,13 @@ export class Transform extends Component {
 		this._scale = new Point(1, 1);
 		this._skew = new Point(0, 0);
 		this._pivot = new Point(0, 0);
+	}
+
+	public update(dt: number) {
+		this.node!.$entity!.width = 200;
+		this.node!.$entity!.height = 200;
+		this.node?.$entity?.pivot.copyFrom(this._pivot);
+		this.node?.$entity?.position.copyFrom(this._position);
+		this.node!.$entity!.rotation = this.rotation;
 	}
 }

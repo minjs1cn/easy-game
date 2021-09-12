@@ -1,6 +1,6 @@
-import { Scene } from '.';
-import { Ticker, EventEmitter } from '../adapter';
-import { SystemContainer, ComponentContainer } from './containers';
+import { Scene } from './Scene';
+import { Ticker, EventEmitter, Container } from '../adapter';
+import { SystemContainer } from './containers';
 import { System } from './System';
 
 export class Game extends EventEmitter {
@@ -14,21 +14,38 @@ export class Game extends EventEmitter {
 	 */
 	private systemContainer: SystemContainer;
 
-	/**
-	 * 组件管理容器
-	 */
-	private componentContainer: ComponentContainer;
+	private stage: Container | undefined | null;
+	private _scene: Scene | undefined | null;
 
-	public scene = new Scene();
+	public canvas: HTMLCanvasElement | undefined;
+
+	public get scene() {
+		return this._scene;
+	}
 
 	public constructor() {
 		super();
 		this.systemContainer = new SystemContainer();
-		this.componentContainer = new ComponentContainer();
 
 		this.ticker = new Ticker();
 		this.ticker.autoStart = false;
 		this.ticker.add(this.mainLoop, this);
+	}
+
+	public mount(selector: string | HTMLElement) {
+		if (typeof selector === 'string') {
+			document.querySelector(selector)?.appendChild(this.canvas!);
+			return;
+		}
+
+		selector.appendChild(this.canvas!);
+	}
+
+	public startScene(scene: Scene) {
+		scene.$entity = new Container();
+		this._scene = scene;
+		console.log(this.stage);
+		this.stage?.addChild(scene.$entity);
 	}
 
 	/**

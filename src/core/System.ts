@@ -1,3 +1,4 @@
+import { SystemEvent } from '.';
 import { Game } from './Game';
 
 /**
@@ -22,16 +23,12 @@ export abstract class System {
 		return this.constructor.name;
 	}
 
-	protected components: string[];
-
 	/**
 	 * 系统是否启动
 	 */
 	private started = false;
 
-	public constructor() {
-		this.components = [];
-	}
+	public constructor() {}
 
 	/**
 	 * 系统安装
@@ -42,15 +39,10 @@ export abstract class System {
 		this.init && this.init();
 	}
 
-	protected watch(name: string) {
-		console.log(this.$name + ' watch ' + name);
-		this.components.push(name);
-	}
-
 	/**
 	 * 初始化
 	 */
-	public init?(): void;
+	public init?(config?: any): void;
 
 	/**
 	 * 首次帧循环
@@ -72,5 +64,5 @@ export abstract class System {
 	/**
 	 * 销毁
 	 */
-	public destroy?(): boolean;
+	public destroy?(): void;
 }

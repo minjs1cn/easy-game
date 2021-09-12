@@ -1,5 +1,8 @@
+import { SystemEvent } from './SystemEvent';
 import { Component } from './Component';
+import { Transform } from './components/renderer/component';
 import { NodeComponentContainer } from './containers';
+import { Container } from '../adapter';
 
 let _uid = 0;
 
@@ -32,13 +35,27 @@ export class Node {
 	}
 
 	/**
+	 * 每个节点对应的实体，分离实体的目的是分离渲染层
+	 */
+	public $entity: Container | undefined | null;
+
+	private _transform: Transform;
+
+	public get transform() {
+		return this._transform;
+	}
+
+	/**
 	 * 组件是否可见，决定了是否渲染
 	 */
 	public visible: boolean = true;
 
 	public constructor() {
 		this._id = ++_uid;
-		this._componentContainer = new NodeComponentContainer();
+		this._componentContainer = new NodeComponentContainer(this);
+
+		this._transform = new Transform();
+		this.addComponent(this._transform);
 	}
 
 	/**
@@ -72,7 +89,7 @@ export class Node {
 	 * 移除所有组件
 	 */
 	public removeAllComponents() {
-		this._componentContainer.removeAll();
+		return this._componentContainer.removeAll();
 	}
 
 	/**
@@ -130,6 +147,7 @@ export class Node {
 		}
 		child._parent = this;
 		this._children.push(child);
+		SystemEvent.instance.emit(SystemEvent.Node.ADD, child);
 	}
 
 	/**
@@ -140,6 +158,7 @@ export class Node {
 		let index = this._children.findIndex(item => item.id === child.id);
 		if (index > -1) {
 			// 移除之前，节点上的组件要先销毁
+			SystemEvent.instance.emit(SystemEvent.Node.REMOVE, child);
 			this._children[index]._componentContainer.destroy();
 			this._children.splice(index, 1);
 			child._parent = null;

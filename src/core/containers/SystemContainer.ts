@@ -5,7 +5,7 @@ export class SystemContainer extends Container<System> {
 	protected key = '$name';
 
 	public constructor() {
-		super('system');
+		super('SystemContainer');
 	}
 
 	public update(dt: number) {
@@ -17,7 +17,9 @@ export class SystemContainer extends Container<System> {
 				system.start && system.start();
 				console.log(system.$name + ' start');
 			}
+		});
 
+		this.forEach(system => {
 			if (system.update) {
 				console.log(system.$name + ' update');
 				system.update(dt);

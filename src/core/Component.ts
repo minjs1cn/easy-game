@@ -4,6 +4,7 @@ import { Node } from './node';
  * 所有组件的抽象类
  */
 export abstract class Component {
+	[index: string]: unknown;
 	/**
 	 * 自定义名称
 	 */
@@ -20,7 +21,7 @@ export abstract class Component {
 		return this.constructor.name;
 	}
 
-	private _node: Node | null;
+	private _node: Node | undefined | null;
 	/**
 	 * 挂载的节点
 	 */
@@ -57,6 +58,7 @@ export abstract class Component {
 	 */
 	public onLoad() {}
 	private load() {
+		console.log(this.$name + ' load');
 		this.onLoad();
 	}
 
@@ -97,7 +99,7 @@ export abstract class Component {
 	 * 销毁
 	 */
 	public onDestroy() {}
-	private destroy() {
+	public destroy() {
 		this.onDestroy();
 	}
 }

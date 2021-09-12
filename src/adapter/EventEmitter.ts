@@ -1,5 +1,3 @@
-import { utils } from 'pixi.js';
-
-const { EventEmitter } = utils;
+import { EventEmitter } from '@pixi/utils';
 
 export { EventEmitter };

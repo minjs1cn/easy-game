@@ -1,12 +1,13 @@
+type TContainerKey = string | number;
 /**
  * 容器管理基类
  */
-export abstract class Container<T extends {}> {
+export abstract class Container<T extends Record<string, unknown>> {
 	/**
 	 * 容器集合
 	 */
 	private containers: {
-		[name: string]: T | undefined;
+		[name: TContainerKey]: T | undefined;
 	} | null = null;
 
 	/**
@@ -24,8 +25,8 @@ export abstract class Container<T extends {}> {
 	 * @param container
 	 * @returns
 	 */
-	private getContainerName(container: string | T) {
-		return typeof container === 'string'
+	private getContainerName(container: TContainerKey | T) {
+		return typeof container === 'string' || typeof container === 'number'
 			? container
 			: (container[this.key] as string);
 	}
@@ -50,7 +51,7 @@ export abstract class Container<T extends {}> {
 	 * @param container
 	 * @returns
 	 */
-	public get(container: string | T) {
+	public get(container: TContainerKey) {
 		if (!this.containers) return null;
 
 		const name = this.getContainerName(container);
@@ -65,23 +66,27 @@ export abstract class Container<T extends {}> {
 	 * @param name
 	 * @returns
 	 */
-	public add(container: T, name: string = container[this.key] as string) {
+	public add(
+		container: T,
+		name: TContainerKey = container[this.key] as TContainerKey,
+	) {
 		if (!this.containers) this.containers = {};
 
 		if (this.containers[name]) {
-			console.warn(`${name} container`);
+			console.warn(`${name} container existed`);
 			return;
 		}
 		console.log(this.name + ' add ' + name);
 		this.containers[name] = container;
+		return container;
 	}
 
 	/**
 	 * 移除容器
 	 * @param container
 	 */
-	public remove(container: string | T) {
-		if (!this.containers) return;
+	public remove(container: TContainerKey | T) {
+		if (!this.containers) return false;
 
 		const name = this.getContainerName(container);
 
@@ -89,6 +94,7 @@ export abstract class Container<T extends {}> {
 
 		console.log(this.name + ' remove ' + name);
 		delete this.containers[name];
+		return true;
 	}
 
 	/**
@@ -96,5 +102,6 @@ export abstract class Container<T extends {}> {
 	 */
 	public removeAll() {
 		this.containers = null;
+		return true;
 	}
 }
