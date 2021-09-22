@@ -21,7 +21,7 @@ export class SystemContainer extends Container<System> {
 
 		this.forEach(system => {
 			if (system.update) {
-				console.log(system.$name + ' update');
+				// console.log(system.$name + ' update');
 				system.update(dt);
 			}
 		});
@@ -30,7 +30,7 @@ export class SystemContainer extends Container<System> {
 	public lateUpdate(dt: number) {
 		this.forEach(system => {
 			if (system.lateUpdate) {
-				console.log(system.$name + ' lateUpdate');
+				// console.log(system.$name + ' lateUpdate');
 				system.lateUpdate(dt);
 			}
 		});

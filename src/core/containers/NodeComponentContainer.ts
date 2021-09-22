@@ -13,8 +13,8 @@ export class NodeComponentContainer extends Container<Component> {
 		this.owner = node;
 	}
 
-	public add(component: Component, name?: string) {
-		if (!super.add(component, name)) return;
+	public add<T extends Component>(component: T, name?: string): T {
+		if (!super.add(component, name)) return component;
 
 		// @ts-expect-error
 		component._node = this.owner;
@@ -25,7 +25,7 @@ export class NodeComponentContainer extends Container<Component> {
 	}
 
 	public remove(component: string | number | Component) {
-		if (!super.remove(component)) return;
+		if (!super.remove(component)) return false;
 
 		SystemEvent.instance.emit(SystemEvent.Component.REMOVE, component);
 		return true;
@@ -35,14 +35,15 @@ export class NodeComponentContainer extends Container<Component> {
 
 	public update(dt: number) {
 		this.forEach(component => {
+			component.update(dt);
 			SystemEvent.instance.emit(SystemEvent.Component.UPDATE, component, dt);
 		});
 	}
 
 	public lateUpdate(dt: number) {
-		// this.forEach(component => {
-		// 	SystemEvent.instance.emit(SystemEvent.Component.UPDATE, component, dt);
-		// });
+		this.forEach(component => {
+			component.lateUpdate(dt);
+		});
 	}
 
 	public destroy() {

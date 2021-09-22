@@ -54,7 +54,7 @@ export class RendererSystem extends System {
 
 	private onComponentAdd(component: Component) {
 		if (component.$name === Transform.componentName) {
-			component.node!.$entity = new Container();
+			// component.node!.$entity = new Container();
 			console.log(this.$name + ' onComponentAdd');
 		}
 	}
@@ -69,7 +69,13 @@ export class RendererSystem extends System {
 		this.game.scene?.update(dt);
 	}
 
+	public lateUpdate(dt: number) {
+		this.game.scene?.lateUpdate(dt);
+	}
+
 	public destroy() {
+		SystemEvent.instance.off(SystemEvent.Node.ADD, this.onNodeAdd, this);
+		SystemEvent.instance.off(SystemEvent.Node.REMOVE, this.onNodeRemove, this);
 		SystemEvent.instance.off(
 			SystemEvent.Component.ADD,
 			this.onComponentAdd,

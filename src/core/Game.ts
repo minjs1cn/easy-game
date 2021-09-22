@@ -1,5 +1,5 @@
 import { Scene } from './Scene';
-import { Ticker, EventEmitter, Container } from '../adapter';
+import { Ticker, EventEmitter, Container, Loader } from '../adapter';
 import { SystemContainer } from './containers';
 import { System } from './System';
 
@@ -8,6 +8,8 @@ export class Game extends EventEmitter {
 	 * 游戏时钟
 	 */
 	public ticker: Ticker;
+
+	public loader = new Loader();
 
 	/**
 	 * 系统管理容器
@@ -42,10 +44,9 @@ export class Game extends EventEmitter {
 	}
 
 	public startScene(scene: Scene) {
-		scene.$entity = new Container();
 		this._scene = scene;
 		console.log(this.stage);
-		this.stage?.addChild(scene.$entity);
+		this.stage?.addChild(scene.$entity as Container);
 	}
 
 	/**
@@ -61,10 +62,12 @@ export class Game extends EventEmitter {
 	 * 添加系统
 	 * @param system
 	 */
-	public addSystem(system: System) {
-		this.systemContainer.add(system);
-		// @ts-expect-error
-		system.install(this);
+	public addSystem(...systems: System[]) {
+		systems.forEach(system => {
+			this.systemContainer.add(system);
+			// @ts-expect-error
+			system.install(this);
+		});
 	}
 
 	/**

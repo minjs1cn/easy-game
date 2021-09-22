@@ -43,7 +43,6 @@ export class Transform extends Component {
 
 	public constructor() {
 		super();
-
 		this._position = new Point(0, 0);
 		this._scale = new Point(1, 1);
 		this._skew = new Point(0, 0);
@@ -51,10 +50,9 @@ export class Transform extends Component {
 	}
 
 	public update(dt: number) {
-		this.node!.$entity!.width = 200;
-		this.node!.$entity!.height = 200;
 		this.node?.$entity?.pivot.copyFrom(this._pivot);
 		this.node?.$entity?.position.copyFrom(this._position);
 		this.node!.$entity!.rotation = this.rotation;
+		this.node?.$entity?.scale.set(this._scale.x, this._scale.y);
 	}
 }

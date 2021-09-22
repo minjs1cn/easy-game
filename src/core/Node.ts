@@ -1,10 +1,13 @@
 import { SystemEvent } from './SystemEvent';
 import { Component } from './Component';
-import { Transform } from './components/renderer/component';
+import { Transform } from './components/renderer';
 import { NodeComponentContainer } from './containers';
 import { Container } from '../adapter';
 
-let _uid = 0;
+const generateID = (function () {
+	let _uid = 0;
+	return () => ++_uid;
+})();
 
 /**
  * 节点
@@ -45,13 +48,41 @@ export class Node {
 		return this._transform;
 	}
 
+	public get position() {
+		return this._transform.position;
+	}
+
+	protected _visible = true;
 	/**
 	 * 组件是否可见，决定了是否渲染
 	 */
-	public visible: boolean = true;
+	public get visible() {
+		return this._visible;
+	}
+	public set visible(val: boolean) {
+		if (this._visible !== val) this._visible = val;
 
-	public constructor() {
-		this._id = ++_uid;
+		if (this._visible) {
+			this.parent?.addChild(this);
+		} else {
+			this.parent?.removeChild(this, false);
+		}
+	}
+
+	public get width() {
+		return this.$entity!.width;
+	}
+
+	public get height() {
+		return this.$entity!.height;
+	}
+
+	public constructor(public name?: string) {
+		this._id = generateID();
+		if (!name) {
+			this.name = 'node_' + this.id;
+		}
+		this.$entity = new Container();
 		this._componentContainer = new NodeComponentContainer(this);
 
 		this._transform = new Transform();
@@ -63,8 +94,8 @@ export class Node {
 	 * @param name
 	 * @returns
 	 */
-	public addComponent(name: Component) {
-		return this._componentContainer.add(name);
+	public addComponent<T extends Component>(name: T) {
+		return this._componentContainer.add<T>(name);
 	}
 
 	/**
@@ -154,14 +185,14 @@ export class Node {
 	 * 移除子节点
 	 * @param child
 	 */
-	public removeChild(child: Node) {
-		let index = this._children.findIndex(item => item.id === child.id);
+	public removeChild(child: Node, isDeleteParent: boolean = true) {
+		let index = this._children.findIndex(item => item === child);
 		if (index > -1) {
-			// 移除之前，节点上的组件要先销毁
 			SystemEvent.instance.emit(SystemEvent.Node.REMOVE, child);
-			this._children[index]._componentContainer.destroy();
 			this._children.splice(index, 1);
-			child._parent = null;
+			if (isDeleteParent) {
+				child._parent = null;
+			}
 		}
 	}
 

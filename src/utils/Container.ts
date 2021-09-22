@@ -2,7 +2,11 @@ type TContainerKey = string | number;
 /**
  * 容器管理基类
  */
-export abstract class Container<T extends Record<string, unknown>> {
+export abstract class Container<
+	T extends {
+		[index: string | number]: any;
+	},
+> {
 	/**
 	 * 容器集合
 	 */
@@ -76,7 +80,7 @@ export abstract class Container<T extends Record<string, unknown>> {
 			console.warn(`${name} container existed`);
 			return;
 		}
-		console.log(this.name + ' add ' + name);
+
 		this.containers[name] = container;
 		return container;
 	}
@@ -90,9 +94,8 @@ export abstract class Container<T extends Record<string, unknown>> {
 
 		const name = this.getContainerName(container);
 
-		if (!this.containers[name]) return;
+		if (!this.containers[name]) return false;
 
-		console.log(this.name + ' remove ' + name);
 		delete this.containers[name];
 		return true;
 	}
