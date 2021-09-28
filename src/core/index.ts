@@ -6,3 +6,4 @@ export * from './Node';
 export * from './Component';
 export * from './SystemEvent';
 export * from './Renderer';
+export * from './Loader';

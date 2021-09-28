@@ -7,6 +7,7 @@ import {
 	TextStyle,
 	Sprite,
 	Texture,
+	BaseTexture,
 	Loader,
 } from 'pixi.js';
 
@@ -19,6 +20,7 @@ export {
 	Sprite,
 	Texture,
 	Loader,
+	BaseTexture,
 };
 
 export interface IApplicationOptions extends I {}

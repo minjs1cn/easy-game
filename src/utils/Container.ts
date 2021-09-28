@@ -1,17 +1,17 @@
 type TContainerKey = string | number;
+
+interface AnyThing {
+	[index: string | number]: any;
+}
 /**
  * 容器管理基类
  */
-export abstract class Container<
-	T extends {
-		[index: string | number]: any;
-	},
-> {
+export abstract class Container<T extends AnyThing> {
 	/**
 	 * 容器集合
 	 */
 	private containers: {
-		[name: TContainerKey]: T | undefined;
+		[name: TContainerKey]: any;
 	} | null = null;
 
 	/**

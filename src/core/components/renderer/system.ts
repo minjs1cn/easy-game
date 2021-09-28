@@ -19,7 +19,7 @@ export class RendererSystem extends System {
 	public init() {
 		console.log(this.$name + ' init');
 		this.application = new Application(this.applicationOptions);
-		this.game.canvas = this.application.view;
+		this.game.view = this.application.view;
 		// @ts-expect-error
 		this.game.stage = this.application.stage;
 
@@ -43,7 +43,8 @@ export class RendererSystem extends System {
 		if (!node.$entity) {
 			node.$entity = new Container();
 		}
-
+		// @ts-expect-error
+		node._game = this.game;
 		node.parent?.$entity?.addChild(node.$entity);
 	}
 

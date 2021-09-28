@@ -3,18 +3,23 @@ import { Component } from './Component';
 import { Transform } from './components/renderer';
 import { NodeComponentContainer } from './containers';
 import { Container } from '../adapter';
+import { Game } from './Game';
 
-const generateID = (function () {
-	let _uid = 0;
-	return () => ++_uid;
-})();
+let _uid = 0;
 
 /**
  * 节点
  */
 export class Node {
+	/**
+	 * 管理节点上的组件
+	 */
 	private _componentContainer: NodeComponentContainer;
 
+	/**
+	 * 节点ID
+	 * TODO：目前存在无法缓存的问题
+	 */
 	private _id: number;
 	/**
 	 * 组件唯一ID
@@ -24,6 +29,12 @@ export class Node {
 	}
 
 	private _parent: Node | null = null;
+
+	private _game!: Game;
+
+	public get stage() {
+		return this._game.view;
+	}
 	/**
 	 * 节点的父亲
 	 */
@@ -33,6 +44,9 @@ export class Node {
 
 	private _children: Node[] = [];
 
+	/**
+	 * 节点的儿子们
+	 */
 	public get children() {
 		return this._children;
 	}
@@ -40,14 +54,20 @@ export class Node {
 	/**
 	 * 每个节点对应的实体，分离实体的目的是分离渲染层
 	 */
-	public $entity: Container | undefined | null;
+	public $entity: Container;
 
 	private _transform: Transform;
 
+	/**
+	 * 节点变换，最终是同步到节点实体上
+	 */
 	public get transform() {
 		return this._transform;
 	}
 
+	/**
+	 * 节点位置
+	 */
 	public get position() {
 		return this._transform.position;
 	}
@@ -60,7 +80,8 @@ export class Node {
 		return this._visible;
 	}
 	public set visible(val: boolean) {
-		if (this._visible !== val) this._visible = val;
+		if (this._visible === val) return;
+		this._visible = val;
 
 		if (this._visible) {
 			this.parent?.addChild(this);
@@ -69,22 +90,39 @@ export class Node {
 		}
 	}
 
+	/**
+	 * 节点宽度
+	 */
 	public get width() {
 		return this.$entity!.width;
 	}
+	public set width(w: number) {
+		this.$entity!.width = w;
+	}
 
+	/**
+	 * 节点高度
+	 */
 	public get height() {
 		return this.$entity!.height;
 	}
+	public set height(h: number) {
+		this.$entity!.height = h;
+	}
 
 	public constructor(public name?: string) {
-		this._id = generateID();
+		// 节点ID
+		this._id = ++_uid;
+		// 节点名称
 		if (!name) {
 			this.name = 'node_' + this.id;
 		}
+		// 节点实体
 		this.$entity = new Container();
+		// 节点组件管理器
 		this._componentContainer = new NodeComponentContainer(this);
 
+		// 节点默认自带transform组件
 		this._transform = new Transform();
 		this.addComponent(this._transform);
 	}
@@ -201,5 +239,37 @@ export class Node {
 	 */
 	public removeAllChildren() {
 		this._children.length = 0;
+	}
+
+	/**
+	 * 通过ID查找子节点
+	 * @param id
+	 * @returns
+	 */
+	public findNodeById(id: number): Node | null {
+		return this.findBy('_id', id);
+	}
+
+	/**
+	 * 通过名称查询子节点
+	 * @param name
+	 * @returns
+	 */
+	public findNodeByName(name: string): Node | null {
+		return this.findBy('name', name);
+	}
+
+	private findBy(key: '_id' | 'name', id: number | string): Node | null {
+		let children = this.children;
+		let findNode: Node | null;
+		for (let i = 0; i < children.length; i++) {
+			findNode = children[i];
+			if (findNode[key] === id) return findNode;
+		}
+		for (let i = 0; i < children.length; i++) {
+			findNode = children[i].findBy(key, id);
+			if (findNode) return findNode;
+		}
+		return null;
 	}
 }

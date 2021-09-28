@@ -1,7 +1,8 @@
 import { Scene } from './Scene';
-import { Ticker, EventEmitter, Container, Loader } from '../adapter';
+import { Ticker, EventEmitter, Container } from '../adapter';
 import { SystemContainer } from './containers';
 import { System } from './System';
+import { RES } from './Loader';
 
 export class Game extends EventEmitter {
 	/**
@@ -9,18 +10,31 @@ export class Game extends EventEmitter {
 	 */
 	public ticker: Ticker;
 
-	public loader = new Loader();
+	/**
+	 * 加载器
+	 */
+	public loader = RES;
 
 	/**
 	 * 系统管理容器
 	 */
 	private systemContainer: SystemContainer;
 
-	private stage: Container | undefined | null;
-	private _scene: Scene | undefined | null;
+	/**
+	 * 舞台
+	 */
+	private stage!: Container;
 
-	public canvas: HTMLCanvasElement | undefined;
+	/**
+	 * 视图
+	 */
+	public view!: HTMLCanvasElement;
 
+	private _scene: Scene | undefined;
+
+	/**
+	 * 当前场景
+	 */
 	public get scene() {
 		return this._scene;
 	}
@@ -35,18 +49,52 @@ export class Game extends EventEmitter {
 	}
 
 	public mount(selector: string | HTMLElement) {
+		let container: HTMLElement | null;
+
 		if (typeof selector === 'string') {
-			document.querySelector(selector)?.appendChild(this.canvas!);
-			return;
+			container = document.querySelector(selector);
+		} else {
+			container = selector;
 		}
 
-		selector.appendChild(this.canvas!);
+		if (container) {
+			const { view } = this;
+			const { width, height } = view;
+			const { offsetWidth, offsetHeight } = container;
+
+			// TODO 适配，暂时支持showAll
+			view.style.display = 'block';
+			view.style.margin = '0 auto';
+
+			if (navigator.userAgent.indexOf('iPhone') !== -1) {
+				if (width / height - offsetWidth / offsetHeight > 0) {
+					view.style.width = offsetWidth + 'px';
+					view.style.height = offsetWidth / (width / height) + 'px';
+					view.style.marginTop =
+						offsetHeight / 2 - offsetWidth / 2 / (width / height) + 'px';
+				} else {
+					view.style.height = offsetHeight + 'px';
+					view.style.width = (width / height) * offsetHeight + 'px';
+				}
+			} else if (height > offsetHeight) {
+				view.style.height = offsetHeight + 'px';
+				view.style.width = (width / height) * offsetHeight + 'px';
+			} else {
+			}
+
+			container.appendChild(view);
+		}
 	}
 
 	public startScene(scene: Scene) {
+		if (this._scene) {
+			this.stage.removeChild(this._scene.$entity);
+		}
 		this._scene = scene;
-		console.log(this.stage);
-		this.stage?.addChild(scene.$entity as Container);
+		// @ts-expect-error
+		this._scene._game = this;
+		this._scene.init();
+		this.stage.addChild(scene.$entity);
 	}
 
 	/**
